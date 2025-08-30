@@ -1,7 +1,7 @@
 /*
 ********************************************************************************
 ** This dofile is the processing code for Section VI of Network Structure and Medical Crowdfunding.
-** Author: Xu Han, Shen Peng, Yiqing Xing, Junjian Yi, Haochen Zhang, Xueyong Zhang
+** Author: Xu Han, Yiqing Xing, Junjian Yi, Haochen Zhang
 ** Code author: Xu Han
 ** Last update: 2025-6-21
 ** Create date: 2024-9-23

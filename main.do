@@ -1,7 +1,7 @@
 /*
 ********************************************************************************
 ** This dofile is the main code for Network Structure and Medical Crowdfunding.
-** Author: Xu Han, Shen Peng, Yiqing Xing, Junjian Yi, Haochen Zhang, Xueyong Zhang
+** Author: Xu Han, Yiqing Xing, Junjian Yi, Haochen Zhang
 ** Code author: Xu Han
 ** Last update: 2025-7-2
 ** Create date: 2024-12-6
