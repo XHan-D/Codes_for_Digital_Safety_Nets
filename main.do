@@ -1,6 +1,6 @@
 /*
 ********************************************************************************
-** This dofile is the main code for Network Structure and Medical Crowdfunding.
+** This dofile is the main code for "Digital Safety Nets: How Social Networks Shape Online Medical Crowdfunding Performance".
 ** Author: Xu Han, Yiqing Xing, Junjian Yi, Haochen Zhang
 ** Code author: Xu Han
 ** Last update: 2025-7-2
@@ -10,9 +10,11 @@
 			  3. census2015.dta
 			  4. citycode_user.dta
 			  5. citycode_econ.dta
-** Dofiles used: 1. pre_processing.do
-				 2. suggestive_evidence.do
-				 3. edu_example_processing.do
+** Dofiles used: 1. processing.do
+			     2. measurements.do
+				 3. suggestive_evidence.do
+				 4. edu_example_processing.do
+				 5. robustness.do
 ********************************************************************************
 */
 
@@ -37,126 +39,13 @@ global measurements "user_num_pct_nw1 hhi entropy"
 use "Rawdata/data_20231120_1124.dta", clear
 drop channel his_pv verify_cnt wx_sex wx_city property_num property_total_value is_living_security is_gov_relief home_income is_poverty
 
-do "Codes/pre_processing.do"
-
-*Trimming
-sum don_amt_total_nw, detail
-drop if don_amt_total_nw<=0
-winsor2 don_amt_total_nw, trim cuts(0 99) replace //81,562 in 99% percentile
-drop if don_amt_total_nw>=.
-
-*sum complete_pct,detail
-gen case_id=_n
-order case_id
-
-egen test=group(case_id_s)
-assert test==case_id
-drop test
-drop case_id_s
-
-*Patient Gender (with missing data)
-rename patient_gender patient_gender_str
-gen female_pat=1 if patient_gender_str=="女"
-replace female_pat=0 if patient_gender_str=="男"
-drop patient_gender_str
-
-*Patient Age
-rename luanch_patient_age age_pat
-
-*Insurance (without missing data)
-tab is_commercial_insurance
-tab is_medical_insurance
-gen commercial_insurance=(is_commercial_insurance=="有")
-gen medical_insurance=(is_medical_insurance=="有")
-drop is_commercial_insurance is_medical_insurance
-rename commercial_insurance is_commercial_insurance
-rename medical_insurance is_medical_insurance
-
-*Cancer Dummy
-gen cancer_dummy =(strpos(normalized_disease, "癌") > 0) | (strpos(normalized_disease, "瘤") > 0) | (strpos(normalized_disease, "白血病") > 0)
-
-*Network Controls in hundreds
-gen user_num_total_hundred=user_num_total_nw/100
-gen share_hy_total_hundred=share_hy_total/100
-gen share_pyq_total_hundred=share_pyq_total/100
-
-save "Workdata/sample_total.dta", replace
+do "Codes/processing.do"
 
 *===============================================================================
 *				  Measurements of Sharing Network Structure
 *===============================================================================
-use "Workdata/sample_total.dta", clear
 
-*Calculate the median of don_amt_total_nw
-egen median=median(don_amt_total_nw)
-gen high_don_amt_nw=(don_amt_total_nw>=median)
-drop median
-label define median 1 "Campaigns with Donation Amounts above Median" ///
- 0 "Campaigns with Donation Amounts below Median"
-label variable high_don_amt_nw "donate amount above median dummy"
-label values high_don_amt_nw median
-
-*Log of total shares
-gen log_share_hy_total=log(share_hy_total)
-gen log_share_pyq_total=log(share_pyq_total)
-
-*Percentage of visits from each depths
-forvalues i=1/10{
-	gen user_num_pct_nw`i'=user_num`i' *100/user_num_total_nw
-}
-
-*Percentage of donation amount from each depths
-forvalues i=1/10{
-	gen don_amt_pct_nw`i'=don_amt`i' *100/don_amt_total_nw
-}
-
-*Percentage of share_hy from each depths
-forvalues i=0/10{
-	gen share_hy_pct`i'=share_hy`i' *100/share_hy_total
-}
-
-*Percentage of share_pyq from each depths
-forvalues i=0/10{
-	gen share_pyq_pct`i'=share_pyq`i' *100/share_pyq_total
-}
-
-*HHI
-gen hhi=((user_num_pct_nw1)^2 + (user_num_pct_nw2)^2 ///
- + (user_num_pct_nw3)^2 + (user_num_pct_nw4)^2 + (user_num_pct_nw5)^2 ///
- + (user_num_pct_nw6)^2 + (user_num_pct_nw7)^2 + (user_num_pct_nw8)^2 ///
- + (user_num_pct_nw9)^2 + (user_num_pct_nw10)^2)/10000
-
-gen hhi_don=((don_amt_pct_nw1)^2 + (don_amt_pct_nw2)^2 ///
- + (don_amt_pct_nw3)^2 + (don_amt_pct_nw4)^2 + (don_amt_pct_nw5)^2 ///
- + (don_amt_pct_nw6)^2 + (don_amt_pct_nw7)^2 + (don_amt_pct_nw8)^2 ///
- + (don_amt_pct_nw9)^2 + (don_amt_pct_nw10)^2)/10000
-
-*Entropy
-gen entropy=0
-forvalues i=1/10{
-	gen temp=-(user_num_pct_nw`i'/100)*(log(user_num_pct_nw`i'/100)/log(2))
-	replace temp=0 if temp==.
-	replace entropy=entropy+temp
-	drop temp
-}
-gen entropy_don=0
-forvalues i=1/10{
-	gen temp=-(don_amt_pct_nw`i'/100)*(log(don_amt_pct_nw`i'/100)/log(2))
-	replace temp=0 if temp==.
-	replace entropy_don=entropy_don+temp
-	drop temp
-}
-
-*Drop observations with missing information on beneficiaries' baseline characteristics
-foreach var of varlist $controls citycode_pat{
-	drop if `var'>=.
-}
-
-*Drop observations with singleton citycode_pat
-bys citycode_pat: drop if _N==1
-
-sort case_id
-save,replace
+do "Codes/measurements.do"
 
 *===============================================================================
 *				            Section III Data
@@ -1165,32 +1054,3 @@ keep(educ2_avg $measurements user_num_total_hundred $shares) ///
 order(educ2_avg $measurements user_num_total_hundred $shares) ///
 b(%9.3fc) se(%9.3fc) star(* 0.10 ** 0.05 *** 0.01) stats(N r2, fmt(%15.0fc %9.3fc))
 */
-
-********************************************************************************
-gen log_don_avg=log(don_amt_total_nw/user_num_total_nw)
-gen only_direct=(hhi==1)
-
-reghdfe log_don_avg user_num_pct_nw1 $controls $shares only_direct, a(citycode_pat) cluster(citycode_pat)
-
-reghdfe log_don_avg hhi $controls $shares only_direct, a(citycode_pat) cluster(citycode_pat)
-
-reghdfe log_don_avg entropy $controls $shares only_direct, a(citycode_pat) cluster(citycode_pat)
-
-********************************************************************************
-reghdfe log_don_amt_nw user_num_pct_nw1 $controls, absorb(citycode_pat) cluster(citycode_pat)
-reghdfe log_don_amt_nw hhi $controls, absorb(citycode_pat) cluster(citycode_pat)
-reghdfe log_don_amt_nw entropy $controls, absorb(citycode_pat) cluster(citycode_pat)
-
-reghdfe log_don_amt_nw user_num_pct_nw1 $controls log_share_hy_total log_share_pyq_total, absorb(citycode_pat) cluster(citycode_pat)
-reghdfe log_don_amt_nw hhi $controls log_share_hy_total log_share_pyq_total, absorb(citycode_pat) cluster(citycode_pat)
-reghdfe log_don_amt_nw entropy $controls log_share_hy_total log_share_pyq_total, absorb(citycode_pat) cluster(citycode_pat)
-
-gen user_num_total_discrete=0
-forvalues i=1/5{
-	replace user_num_total_discrete=`i' if user_num_total_nw>`i'*1000 & user_num_total_nw<=`i'*1000+1000
-}
-replace user_num_total_discrete=6 if user_num_total_nw>6000
-
-reghdfe log_don_amt_nw user_num_pct_nw1 $controls i.user_num_total_discrete $shares, absorb(citycode_pat) cluster(citycode_pat)
-reghdfe log_don_amt_nw hhi $controls i.user_num_total_discrete $shares, absorb(citycode_pat) cluster(citycode_pat)
-reghdfe log_don_amt_nw entropy $controls i.user_num_total_discrete $shares, absorb(citycode_pat) cluster(citycode_pat)

@@ -174,6 +174,7 @@ reghdfe diff if share_dv>=1 & share_dv<=10, absorb(citycode_user) res
 predict diff_res, res
 reghdfe diff_res o.dv_1 dv_2 dv_3 dv_4 dv_5 dv_6 dv_7 dv_8 ///
 dv_9 dv_10 if share_dv>=1 & share_dv<=10, absorb(case_id_s) cluster(case_id_s)
+//Note: diff will not be absorbed by either campaign fe or viewers' city fe.
 
 coefplot, keep(dv_*) 									///
 omitted baselevel vertical nooffsets 					///
