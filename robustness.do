@@ -1,6 +1,6 @@
 /*
 ********************************************************************************
-** This dofile is the main code for Network Structure and Medical Crowdfunding.
+** This dofile is the code for Appendix table 3-5 of "Digital Safety Nets: How Social Networks Shape Online Medical Crowdfunding Performance".
 ** Author: Xu Han, Yiqing Xing, Junjian Yi, Haochen Zhang
 ** Code author: Xu Han
 ** Last update: 2025-9-6

@@ -21,10 +21,6 @@ label define median 1 "Campaigns with Donation Amounts above Median" ///
 label variable high_don_amt_nw "donate amount above median dummy"
 label values high_don_amt_nw median
 
-*Log of total shares
-gen log_share_hy_total=log(share_hy_total)
-gen log_share_pyq_total=log(share_pyq_total)
-
 *Percentage of visits from each depths
 forvalues i=1/10{
 	gen user_num_pct_nw`i'=user_num`i' *100/user_num_total_nw

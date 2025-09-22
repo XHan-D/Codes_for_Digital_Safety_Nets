@@ -1,14 +1,14 @@
 /*
 ********************************************************************************
-** This dofile is the code for for Network Structure and Medical Crowdfunding.
+** This dofile is the code for Appendix figure 1-3 of "Digital Safety Nets: How Social Networks Shape Online Medical Crowdfunding Performance".
 ** Author: Xu Han, Yiqing Xing, Junjian Yi, Haochen Zhang
 ** Code author: Xu Han
-** last update: 2025-6-23
+** last update: 2025-7-29
 ** Create date: 2025-6-6
-** Data used: 1. data_20231120_1124.dta
-              2. citycode_pat.dta
-			  3. citycode_user.dta
-			  4. citycode_econ.dta
+** Data used: 1. Tempdata/view_total.dta
+              2. citycode_user.dta
+			  3. census2015.dta
+			  4. sample_total.dta
 ********************************************************************************
 */
 
@@ -94,8 +94,8 @@ rename( 												///
 	dv_1="1" dv_2="2" dv_3="3" dv_4="4" dv_5="5" 		///
 	dv_6="6" dv_7="7" dv_8="8" dv_9="9" dv_10="10" 		///
 )														///
-saving("Figures/Figure6_1",replace)
-graph export "Figures/Figure6_1.png", replace
+saving("Figures/FigureA2_1",replace)
+graph export "Figures/FigureA2_1.png", replace
 
 *Panel B: Historical donation count
 qui reghdfe his_donate_cnt o.dv_1 dv_2 dv_3 dv_4 dv_5 dv_6 dv_7 dv_8 ///
@@ -111,8 +111,8 @@ rename( 												///
 	dv_1="1" dv_2="2" dv_3="3" dv_4="4" dv_5="5" 		///
 	dv_6="6" dv_7="7" dv_8="8" dv_9="9" dv_10="10" 		///
 )														///
-saving("Figures/Figure6_2",replace)
-graph export "Figures/Figure6_2.png", replace
+saving("Figures/FigureA2_2",replace)
+graph export "Figures/FigureA2_2.png", replace
 
 /*
 reghdfe donate_amt o.dv_1 dv_2 dv_3 dv_4 dv_5 dv_6 dv_7 dv_8 ///
@@ -186,8 +186,8 @@ rename( 												///
 	dv_1="1" dv_2="2" dv_3="3" dv_4="4" dv_5="5" 		///
 	dv_6="6" dv_7="7" dv_8="8" dv_9="9" dv_10="10" 		///
 )														///
-saving("Figures/FigureA4_3",replace)
-graph export "Figures/FigureA4_3.png", replace
+saving("Figures/FigureA2_3",replace)
+graph export "Figures/FigureA2_3.png", replace
 
 *Panel D:Proportion of viewers from prefectures different from the beneficiary's
 reghdfe diff2 if share_dv>=1 & share_dv<=10, absorb(citycode_user) res
@@ -205,8 +205,8 @@ rename( 												///
 	dv_1="1" dv_2="2" dv_3="3" dv_4="4" dv_5="5" 		///
 	dv_6="6" dv_7="7" dv_8="8" dv_9="9" dv_10="10" 		///
 )														///
-saving("Figures/Figure4_4",replace)
-graph export "Figures/FigureA4_4.png", replace
+saving("Figures/FigureA2_4",replace)
+graph export "Figures/FigureA2_4.png", replace
 
 /*
 gen east_user=inlist(prov_user, 11, 12, 31, 32, 33, 35, 44) if !missing(prov_user)
@@ -268,8 +268,8 @@ rename( 												///
 	dv_1="1" dv_2="2" dv_3="3" dv_4="4" dv_5="5" 		///
 	dv_6="6" dv_7="7" dv_8="8" dv_9="9" dv_10="10" 		///
 )														///
-saving("Figures/FigureA2",replace)
-graph export "Figures/FigureA2.png", replace
+saving("Figures/FigureA3",replace)
+graph export "Figures/FigureA3.png", replace
 
 restore
 

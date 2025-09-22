@@ -10,6 +10,9 @@
 ********************************************************************************
 */
 
+use "Rawdata/data_20231120_1124.dta", clear
+drop channel his_pv verify_cnt wx_sex wx_city property_num property_total_value is_living_security is_gov_relief home_income is_poverty
+
 *****************************Simplifying the ids********************************
 *tab share_dv
 drop if share_dv=="NaN" | share_dv=="]" 
@@ -70,6 +73,11 @@ foreach var of varlist share_to* {
 by case_id_s: egen share_hy_total=total(share_to_hy_cnt)
 by case_id_s: egen share_pyq_total=total(share_to_pyq_cnt)
 //When counting sharing amounts, we need to take dep==0 into consideration
+
+gen log_share_hy_total=log(share_hy_total)
+gen log_share_pyq_total=log(share_pyq_total)
+*gen log_share_hy_total=log(share_hy_total+1)
+*gen log_share_pyq_total=log(share_pyq_total+1)
 
 replace share_dv=share_dv+1 //To keep direct friends at depth 1
 
